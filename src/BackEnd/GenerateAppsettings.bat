@@ -27,7 +27,7 @@ echo     "Audience": "FirstTodoWebApiClient",
 echo     "TtlMinutes": 5
 echo   },
 echo   "Database": {
-echo     "ConnectionString": "Data source=users_todos.db"
+echo     "ConnectionString": "Server=(localdb)\mssqllocaldb;Database=TsuShopDB;Trusted_Connection=True"
 echo   },
 echo   "FirstUser": {
 echo     "Username": "admin",

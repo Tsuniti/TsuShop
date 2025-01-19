@@ -37,14 +37,12 @@ public class CartService : ICartService
 
         if (availability is false)
             return false; // product is not available or not found
-
-        // TODO: add feature if cartItem exist
         
         var cartItem = cart.CartItems.FirstOrDefault(cartItem => cartItem.ProductId == productId);
 
         if (cartItem != null)
         {
-            cartItem.Quantity -= quantity;
+            cartItem.Quantity += quantity;
             cartItem.UpdatedAt = DateTime.UtcNow;
         }
         else

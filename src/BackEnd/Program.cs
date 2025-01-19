@@ -1,11 +1,11 @@
 using System.Reflection;
-using FirstTodoWebApi.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using TsuShopWebApi.Controllers;
 using TsuShopWebApi.Database;
 using TsuShopWebApi.Interfaces;
+using TsuShopWebApi.Options;
 using TsuShopWebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);

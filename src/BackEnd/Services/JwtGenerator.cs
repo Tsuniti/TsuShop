@@ -1,9 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using FirstTodoWebApi.Options;
 using Microsoft.IdentityModel.Tokens;
 using TsuShopWebApi.Interfaces;
+using TsuShopWebApi.Options;
 
 namespace TsuShopWebApi.Services;
 

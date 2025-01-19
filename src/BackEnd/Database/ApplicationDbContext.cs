@@ -1,9 +1,9 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
-using FirstTodoWebApi.Options;
 using Microsoft.EntityFrameworkCore;
 using TsuShopWebApi.Entities;
 using TsuShopWebApi.Interfaces;
+using TsuShopWebApi.Options;
 
 namespace TsuShopWebApi.Database;
 
