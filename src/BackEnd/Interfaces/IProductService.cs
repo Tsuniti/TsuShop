@@ -17,4 +17,5 @@ public interface IProductService
     Task<bool> AddSomeToStockAsync(Guid productId, int quantity, Guid userId);
 
     Task<bool> IsAvailableAsync(Guid productId, int quantity);
+    Task<bool> ReCountRatingAsync(Product product);
 }

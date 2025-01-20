@@ -8,7 +8,6 @@ public class Product : BaseEntity
     public string Description { get; set; }
     public string Category { get; set; }
     public double Price { get; set; }
-    
     public double Rating { get; set; }
     public int Quantity { get; set; }
     

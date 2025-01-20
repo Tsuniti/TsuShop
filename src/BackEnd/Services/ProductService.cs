@@ -164,4 +164,22 @@ public class ProductService : IProductService
         
         return true;
     }
+
+    public async Task<bool> ReCountRatingAsync(Product product)
+    {
+        double sum = 0;
+
+        foreach (var r in product.Reviews)
+        {
+            sum += r.Rating;
+        }
+        product.Rating = sum / product.Reviews.Count;
+
+        if (await _context.SaveChangesAsync() > 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
 }

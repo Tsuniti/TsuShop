@@ -58,9 +58,11 @@ public class ReviewService : IReviewService
         };
 
         await _context.Reviews.AddAsync(review);
+        
+        
         if (await _context.SaveChangesAsync() > 0)
         {
-            return review;
+            await _productService.ReCountRatingAsync(product);
         }
 
         return null; // if not added
@@ -75,4 +77,5 @@ public class ReviewService : IReviewService
     {
         throw new NotImplementedException();
     }
+    
 }
