@@ -33,12 +33,16 @@ builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<D
 builder.Services.Configure<FirstUserOptions>(builder.Configuration.GetSection("FirstUser"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<FirstUserOptions>>().Value);
 
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<EmailOptions>>().Value);
+
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>();
 
 
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddSingleton<IJwtGenerator, JwtGenerator>();
 
