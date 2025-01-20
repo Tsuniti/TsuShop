@@ -9,7 +9,6 @@ public class ProductService : IProductService
     
     private readonly IApplicationDbContext _context;
     private readonly IUserService _userService;
-    private IProductService _productServiceImplementation;
 
     public ProductService(IApplicationDbContext context, IUserService userService)
     {
@@ -65,7 +64,9 @@ public class ProductService : IProductService
 
     public async Task<Product?> GetByIdAsync(Guid productId)
     {
-        return await _context.Products.FirstOrDefaultAsync(product => product.Id == productId);
+        return await _context.Products
+            .Include(product => product.Reviews)
+            .FirstOrDefaultAsync(product => product.Id == productId);
     }
 
     public async Task<Product?> CreateAsync(string name, string description, string category, double price, int quantity, Guid userId)
