@@ -4,7 +4,7 @@ namespace TsuShopWebApi.Interfaces;
 
 public interface IProductService
 {
-    Task<ICollection<Product>> GetSomeAsync(int quantity, string? sortBy, bool? isAscending, string? category, string? name);
+    Task<ICollection<Product>> GetSomeAsync(int page, int quantity, string? sortBy, bool isAscending, string? category, string? name);
 
     Task<Product?> GetByIdAsync(Guid productId);
 

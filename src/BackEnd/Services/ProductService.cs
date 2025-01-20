@@ -9,6 +9,7 @@ public class ProductService : IProductService
     
     private readonly IApplicationDbContext _context;
     private readonly IUserService _userService;
+    private IProductService _productServiceImplementation;
 
     public ProductService(IApplicationDbContext context, IUserService userService)
     {
@@ -17,32 +18,33 @@ public class ProductService : IProductService
     }
     
     
-    public async Task<ICollection<Product>> GetSomeAsync(int quantity = 21, string? sortBy = null, bool? isAscending = null, string? category = null, string? name = null)
+    public async Task<ICollection<Product>> GetSomeAsync(int page = 1, int quantity = 21, string? sortBy = null, bool isAscending = true, string? category = null, string? name = null)
     {
 
-        var productsQuery = _context.Products.AsQueryable();
+        var productsQuery = _context.Products.AsNoTracking().AsQueryable();
 
-        if (category != null)
+        if (!string.IsNullOrEmpty(category))
         {
             productsQuery = productsQuery.Where(product => product.Category == category);
         }
 
-        if (name != null)
+        if (!string.IsNullOrEmpty(name))
         {
-            productsQuery = productsQuery.Where(product => product.Name == name);
+            productsQuery = productsQuery.Where(product => product.Name.Contains(name));
         }
         
         if (!string.IsNullOrEmpty(sortBy))
         {
-            if (isAscending == true)
-            {
-                // Сортировка по возрастанию
-                productsQuery = productsQuery.OrderBy(product => EF.Property<object>(product, sortBy));
-            }
-            else
+            if (isAscending is false) // если не указано или false, то по убыванию, иначе по возрастанию
             {
                 // Сортировка по убыванию
                 productsQuery = productsQuery.OrderByDescending(product => EF.Property<object>(product, sortBy));
+
+            }
+            else
+            {
+                // Сортировка по возрастанию
+                productsQuery = productsQuery.OrderBy(product => EF.Property<object>(product, sortBy));
             }
         }
         else
@@ -52,7 +54,10 @@ public class ProductService : IProductService
         }
 
         // Ограничение по количеству
-        var products = await productsQuery.Take(quantity).ToListAsync();
+        var products = await productsQuery
+                                                    .Skip(quantity * (page - 1))
+                                                    .Take(quantity)
+                                                    .ToListAsync();
 
         return products;
         
