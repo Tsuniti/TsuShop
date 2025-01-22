@@ -9,7 +9,7 @@ public class EmailService : IEmailService
 {
     private readonly EmailOptions _emailOptions;
 
-    EmailService(EmailOptions emailOptions)
+    public EmailService(EmailOptions emailOptions)
     {
         _emailOptions = emailOptions;
     }
