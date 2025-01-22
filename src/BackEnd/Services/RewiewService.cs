@@ -6,7 +6,6 @@ namespace TsuShopWebApi.Services;
 
 public class ReviewService : IReviewService
 {
-
     private readonly IApplicationDbContext _context;
     private readonly IProductService _productService;
 
@@ -14,13 +13,13 @@ public class ReviewService : IReviewService
     {
         _context = context;
         _productService = productService;
-
     }
-    
+
     public async Task<ICollection<Review>?> GetAllByProductIdAsync(Guid productId)
     {
         return await _context.Reviews
             .Where(review => review.ProductId == productId)
+            .Include(review => review.User)
             .ToListAsync();
     }
 
@@ -54,12 +53,11 @@ public class ReviewService : IReviewService
 
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
-
         };
 
         await _context.Reviews.AddAsync(review);
-        
-        
+
+
         if (await _context.SaveChangesAsync() > 0)
         {
             await _productService.ReCountRatingAsync(product);
@@ -68,14 +66,46 @@ public class ReviewService : IReviewService
         return null; // if not added
     }
 
-    public async Task<Review?> UpdateAsync(Guid productId, Guid userId, string? text, int rating)
+    public async Task<Review?> UpdateAsync(Guid reviewId, Guid userId, string? text, int rating)
     {
-        throw new NotImplementedException();
+        if (!await _context.Users.AnyAsync(user => user.Id == userId))
+        {
+            return null; // user not exists
+        }
+
+        var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == reviewId);
+
+        if (review is null)
+        {
+            return null;
+        }
+
+        review.Text = text;
+        review.Rating = rating;
+        review.UpdatedAt = DateTime.UtcNow;
+
+        if (await _context.SaveChangesAsync() > 0)
+            return review;
+
+        return null;
+
     }
 
-    public async Task<bool> RemoveAsync(Guid productId, Guid userId)
+    public async Task<bool> RemoveAsync(Guid reviewId, Guid userId)
     {
-        throw new NotImplementedException();
+        if (!await _context.Users.AnyAsync(user => user.Id == userId))
+        {
+            return false; // user not exists
+        }
+        var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == reviewId);
+
+        if (review is null)
+        {
+            return false;
+        }
+
+        _context.Reviews.Remove(review);
+        
+        return await _context.SaveChangesAsync() > 0;
     }
-    
 }
