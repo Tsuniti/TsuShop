@@ -15,9 +15,9 @@ public class CartService : ICartService
         _productService = productService;
     }
 
-    public async Task<ICollection<CartItem>?> GetAllCartItemsAsync(Guid cartId, Guid userId)
+    public async Task<ICollection<CartItem>?> GetAllCartItemsAsync(Guid userId)
     {
-        var cart = await GetCartAsync(cartId: cartId, userId: userId);
+        var cart = await GetCartAsync(userId);
 
         if (cart is null)
             return null;
@@ -25,9 +25,9 @@ public class CartService : ICartService
         return cart.CartItems;
     }
 
-    public async Task<bool> AddSomeInCartAsync(Guid cartId, Guid productId, int quantity, Guid userId)
+    public async Task<bool> AddSomeInCartAsync(Guid productId, int quantity, Guid userId)
     {
-        var cart = await GetCartAsync(cartId: cartId, userId: userId);
+        var cart = await GetCartAsync(userId);
 
         if (cart is null)
             return false; // is not cart owner
@@ -52,7 +52,7 @@ public class CartService : ICartService
 
                 Quantity = quantity,
                 ProductId = productId,
-                CartId = cartId,
+                CartId = cart.Id,
 
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -70,16 +70,13 @@ public class CartService : ICartService
         return false;
     }
 
-    public async Task<bool> RemoveSomeFromCartAsync(Guid cartId, Guid cartItemId, Guid userId,
-        int quantity = Int32.MaxValue)
+    public async Task<bool> RemoveSomeFromCartAsync(Guid cartItemId, Guid userId, int quantity = Int32.MaxValue)
     {
-        var cart = await GetCartAsync(cartId: cartId, userId: userId);
+        var cart = await GetCartAsync(userId);
         if (cart is null)
-            return false; // 
+            return false;
 
-        var cartItem = await _context.CartItems
-            .Include(ci => ci.Cart)
-            .FirstOrDefaultAsync(ci => ci.Id == cartItemId && ci.CartId == cartId);
+        var cartItem = cart.CartItems.FirstOrDefault(cartItem => cartItem.Id == cartItemId);
 
         if (cartItem == null)
             return false;
@@ -111,10 +108,10 @@ public class CartService : ICartService
     }
 
 
-    private async Task<Cart?> GetCartAsync(Guid cartId, Guid userId)
+    private async Task<Cart?> GetCartAsync(Guid userId)
     {
         return await _context.Carts
             .Include(cart => cart.CartItems)
-            .FirstOrDefaultAsync(cart => cart.Id == cartId && cart.UserId == userId);
+            .FirstOrDefaultAsync(cart => cart.UserId == userId);
     }
 }
