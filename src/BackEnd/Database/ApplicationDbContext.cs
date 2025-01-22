@@ -10,7 +10,7 @@ namespace TsuShopWebApi.Database;
 public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     private readonly DatabaseOptions _databaseOptions;
-    private readonly FirstUserOptions _firstUserOptions;
+    private readonly AdminOptions _adminOptions;
     public DbSet<Cart> Carts { get; set; }
     public DbSet<CartItem> CartItems { get; set; }
     public DbSet<Product> Products { get; set; }
@@ -18,10 +18,10 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<User> Users { get; set; }
     
 
-    public ApplicationDbContext(DatabaseOptions databaseOptions, FirstUserOptions firstUserOptions)
+    public ApplicationDbContext(DatabaseOptions databaseOptions, AdminOptions adminOptions)
     {
         _databaseOptions = databaseOptions;
-        _firstUserOptions = firstUserOptions;
+        _adminOptions = adminOptions;
         Database.EnsureCreated();
     }
 
@@ -32,10 +32,10 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>()
-            .HasOne(user => user.Cart)
-            .WithOne(cart => cart.User)
-            .HasForeignKey<Cart>(cart => cart.UserId);
+        modelBuilder.Entity<Cart>()
+            .HasOne(cart => cart.User)
+            .WithOne(user => user.Cart)
+            .HasForeignKey<User>(user => user.CartId);
 
         modelBuilder.Entity<User>()
             .HasMany(user => user.Reviews)
@@ -65,17 +65,29 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         modelBuilder.Entity<CartItem>()
             .HasIndex(cartItem => new { cartItem.CartId, cartItem.ProductId })
             .IsUnique();
-
+        
+        
+        modelBuilder.Entity<Cart>()
+            .HasData(
+                new Cart
+                {
+                    Id = Guid.Parse(_adminOptions.CartId),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+        
         modelBuilder.Entity<User>()
             .HasData(
                 new User
                 {
                     Id = Guid.NewGuid(),
-                    Username = _firstUserOptions.Username,
+                    Username = _adminOptions.Username,
                     PasswordHash =
-                        BitConverter.ToString(SHA256.HashData(Encoding.UTF8.GetBytes(_firstUserOptions.Password))),
+                        BitConverter.ToString(SHA256.HashData(Encoding.UTF8.GetBytes(_adminOptions.Password))),
                     CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    UpdatedAt = DateTime.UtcNow,
+                    CartId = Guid.Parse(_adminOptions.CartId)
+                    
                 });
     }
 }

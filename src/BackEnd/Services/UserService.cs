@@ -26,17 +26,16 @@ public class UserService : IUserService
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
-
+        
         var newCart = new Cart
         {
             Id = Guid.NewGuid(),
-            UserId = newUser.Id,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
 
-        await _context.Users.AddAsync(newUser);
         await _context.Carts.AddAsync(newCart);
+        await _context.Users.AddAsync(newUser);
         await _context.SaveChangesAsync();
 
         return newUser.Id;

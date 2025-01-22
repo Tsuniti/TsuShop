@@ -18,11 +18,10 @@ public class CartService : ICartService
     public async Task<ICollection<CartItem>?> GetAllCartItemsAsync(Guid userId)
     {
         var cart = await _context.Carts
+            .Where(cart => cart.User.Id == userId)
             .Include(cart => cart.CartItems)
-            .FirstOrDefaultAsync(cart => cart.UserId == userId);;
-
-        if (cart is null)
-            return null;
+            .ThenInclude(cartItems => cartItems.Product)
+            .FirstOrDefaultAsync();
 
         return cart.CartItems;
     }
@@ -31,20 +30,19 @@ public class CartService : ICartService
     public async Task<bool> ChangeQuantityAsync(Guid productId, int quantity, Guid userId)
     {
         var cart = await _context.Carts
+            .Where(cart => cart.User.Id == userId)
             .Include(cart => cart.CartItems)
-                .ThenInclude(cartItem => cartItem.Product)
-            .FirstOrDefaultAsync(cart => cart.UserId == userId);
+            .ThenInclude(cartItems => cartItems.Product)
+            .FirstOrDefaultAsync();
 
         if (cart is null)
-            return false; // is not cart owner
+            return false;
 
         var cartItem = cart.CartItems.FirstOrDefault(cartItem => cartItem.ProductId == productId);
         if (cartItem is null)
             return false;
 
         var product = cartItem.Product;
-        if (product is null)
-            return false;
         
         if (product.Quantity < quantity)
         {
@@ -65,8 +63,9 @@ public class CartService : ICartService
     public async Task<bool> AddSomeInCartAsync(Guid productId, int quantity, Guid userId)
     {
         var cart = await _context.Carts
+            .Where(cart => cart.User.Id == userId)
             .Include(cart => cart.CartItems)
-            .FirstOrDefaultAsync(cart => cart.UserId == userId);;
+            .FirstOrDefaultAsync();
 
         if (cart is null)
             return false; // is not cart owner
@@ -112,8 +111,9 @@ public class CartService : ICartService
     public async Task<bool> RemoveItemFromCartAsync(Guid cartItemId, Guid userId)
     {
         var cart = await _context.Carts
+            .Where(cart => cart.User.Id == userId)
             .Include(cart => cart.CartItems)
-            .FirstOrDefaultAsync(cart => cart.UserId == userId);
+            .FirstOrDefaultAsync();
         
         if (cart is null)
             return false;

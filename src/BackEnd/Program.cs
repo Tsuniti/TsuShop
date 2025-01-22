@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using TsuShopWebApi.Controllers;
 using TsuShopWebApi.Database;
+using TsuShopWebApi.Entities;
 using TsuShopWebApi.Interfaces;
 using TsuShopWebApi.Options;
 using TsuShopWebApi.Services;
@@ -30,8 +31,8 @@ builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<J
 builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection("Database"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<DatabaseOptions>>().Value);
     
-builder.Services.Configure<FirstUserOptions>(builder.Configuration.GetSection("FirstUser"));
-builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<FirstUserOptions>>().Value);
+builder.Services.Configure<AdminOptions>(builder.Configuration.GetSection("AdminUser"));
+builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AdminOptions>>().Value);
 
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<EmailOptions>>().Value);
@@ -42,7 +43,8 @@ builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+//builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 
 builder.Services.AddSingleton<IJwtGenerator, JwtGenerator>();
 
@@ -113,6 +115,8 @@ var app = builder.Build();
             config.SwaggerEndpoint("swagger/v1/swagger.json", "TsuShop");
         }
     );
+    app.MapControllers();
+
 }
 
 app.Run();
