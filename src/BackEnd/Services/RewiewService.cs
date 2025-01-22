@@ -9,7 +9,7 @@ public class ReviewService : IReviewService
     private readonly IApplicationDbContext _context;
     private readonly IProductService _productService;
 
-    ReviewService(IApplicationDbContext context, IProductService productService)
+    public ReviewService(IApplicationDbContext context, IProductService productService)
     {
         _context = context;
         _productService = productService;
