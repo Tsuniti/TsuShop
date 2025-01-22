@@ -155,15 +155,7 @@ public class ProductService : IProductService
         
         return await _context.SaveChangesAsync() > 0;
     }
-
-    public async Task<bool> IsAvailableAsync(Guid productId, int quantity)
-    {
-        var product = await _context.Products.FirstOrDefaultAsync(product => product.Id == productId);
-        if (product is null || product.Quantity < quantity)
-            return false;
-        
-        return true;
-    }
+    
 
     public async Task<bool> ReCountRatingAsync(Product product)
     {

@@ -17,7 +17,9 @@ public class CartService : ICartService
 
     public async Task<ICollection<CartItem>?> GetAllCartItemsAsync(Guid userId)
     {
-        var cart = await GetCartAsync(userId);
+        var cart = await _context.Carts
+            .Include(cart => cart.CartItems)
+            .FirstOrDefaultAsync(cart => cart.UserId == userId);;
 
         if (cart is null)
             return null;
@@ -25,40 +27,76 @@ public class CartService : ICartService
         return cart.CartItems;
     }
 
-    public async Task<bool> AddSomeInCartAsync(Guid productId, int quantity, Guid userId)
+
+    public async Task<bool> ChangeQuantityAsync(Guid productId, int quantity, Guid userId)
     {
-        var cart = await GetCartAsync(userId);
+        var cart = await _context.Carts
+            .Include(cart => cart.CartItems)
+                .ThenInclude(cartItem => cartItem.Product)
+            .FirstOrDefaultAsync(cart => cart.UserId == userId);
 
         if (cart is null)
             return false; // is not cart owner
 
-        bool? availability = await _productService.IsAvailableAsync(productId, quantity);
-
-        if (availability is false)
-            return false; // product is not available or not found
-
         var cartItem = cart.CartItems.FirstOrDefault(cartItem => cartItem.ProductId == productId);
+        if (cartItem is null)
+            return false;
 
-        if (cartItem != null)
+        var product = cartItem.Product;
+        if (product is null)
+            return false;
+        
+        if (product.Quantity < quantity)
         {
-            cartItem.Quantity += quantity;
-            cartItem.UpdatedAt = DateTime.UtcNow;
+            quantity = product.Quantity;
         }
-        else
+
+        cartItem.Quantity = quantity;
+        cartItem.UpdatedAt = DateTime.UtcNow;
+
+        if (cartItem.Quantity <= 0)
         {
-            var newCartItem = new CartItem
+            _context.CartItems.Remove(cartItem);
+        }
+
+        return await _context.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> AddSomeInCartAsync(Guid productId, int quantity, Guid userId)
+    {
+        var cart = await _context.Carts
+            .Include(cart => cart.CartItems)
+            .FirstOrDefaultAsync(cart => cart.UserId == userId);;
+
+        if (cart is null)
+            return false; // is not cart owner
+
+
+        if (cart.CartItems.Any(cartItem => cartItem.ProductId == productId))
+        {
+            if (await ChangeQuantityAsync(productId, quantity, userId))
             {
-                Id = Guid.NewGuid(),
+                cart.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return true;
+            }
 
-                Quantity = quantity,
-                ProductId = productId,
-                CartId = cart.Id,
-
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-            await _context.CartItems.AddAsync(newCartItem);
+            return false;
         }
+
+        var newCartItem = new CartItem
+        {
+            Id = Guid.NewGuid(),
+
+            Quantity = quantity,
+            ProductId = productId,
+            CartId = cart.Id,
+
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        await _context.CartItems.AddAsync(newCartItem);
+
 
         if (await _context.SaveChangesAsync() > 0)
         {
@@ -69,10 +107,14 @@ public class CartService : ICartService
 
         return false;
     }
+    
 
-    public async Task<bool> RemoveSomeFromCartAsync(Guid cartItemId, Guid userId, int quantity = Int32.MaxValue)
+    public async Task<bool> RemoveItemFromCartAsync(Guid cartItemId, Guid userId)
     {
-        var cart = await GetCartAsync(userId);
+        var cart = await _context.Carts
+            .Include(cart => cart.CartItems)
+            .FirstOrDefaultAsync(cart => cart.UserId == userId);
+        
         if (cart is null)
             return false;
 
@@ -82,15 +124,8 @@ public class CartService : ICartService
             return false;
 
 
-        if (cartItem.Quantity <= quantity)
-        {
-            _context.CartItems.Remove(cartItem);
-        }
-        else
-        {
-            cartItem.Quantity -= quantity;
-            cartItem.UpdatedAt = DateTime.UtcNow;
-        }
+        _context.CartItems.Remove(cartItem);
+
 
         if (await _context.SaveChangesAsync() > 0)
         {
@@ -106,12 +141,5 @@ public class CartService : ICartService
     {
         throw new NotImplementedException();
     }
-
-
-    private async Task<Cart?> GetCartAsync(Guid userId)
-    {
-        return await _context.Carts
-            .Include(cart => cart.CartItems)
-            .FirstOrDefaultAsync(cart => cart.UserId == userId);
-    }
+    
 }
