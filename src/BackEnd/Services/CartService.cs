@@ -21,23 +21,22 @@ public class CartService : ICartService
 
         if (cart is null)
             return null;
-        
+
         return cart.CartItems;
     }
 
     public async Task<bool> AddSomeInCartAsync(Guid cartId, Guid productId, int quantity, Guid userId)
     {
-
         var cart = await GetCartAsync(cartId: cartId, userId: userId);
-            
-            if(cart is null)
+
+        if (cart is null)
             return false; // is not cart owner
-        
+
         bool? availability = await _productService.IsAvailableAsync(productId, quantity);
 
         if (availability is false)
             return false; // product is not available or not found
-        
+
         var cartItem = cart.CartItems.FirstOrDefault(cartItem => cartItem.ProductId == productId);
 
         if (cartItem != null)
@@ -47,7 +46,6 @@ public class CartService : ICartService
         }
         else
         {
-
             var newCartItem = new CartItem
             {
                 Id = Guid.NewGuid(),
@@ -67,26 +65,26 @@ public class CartService : ICartService
             cart.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return true;
-
         }
 
         return false;
     }
 
-    public async Task<bool> RemoveSomeFromCartAsync(Guid cartId, Guid cartItemId, Guid userId, int quantity = Int32.MaxValue)
+    public async Task<bool> RemoveSomeFromCartAsync(Guid cartId, Guid cartItemId, Guid userId,
+        int quantity = Int32.MaxValue)
     {
         var cart = await GetCartAsync(cartId: cartId, userId: userId);
-        if ( cart is null)
+        if (cart is null)
             return false; // 
-        
+
         var cartItem = await _context.CartItems
             .Include(ci => ci.Cart)
             .FirstOrDefaultAsync(ci => ci.Id == cartItemId && ci.CartId == cartId);
-        
+
         if (cartItem == null)
             return false;
-        
-        
+
+
         if (cartItem.Quantity <= quantity)
         {
             _context.CartItems.Remove(cartItem);
@@ -96,13 +94,12 @@ public class CartService : ICartService
             cartItem.Quantity -= quantity;
             cartItem.UpdatedAt = DateTime.UtcNow;
         }
-        
+
         if (await _context.SaveChangesAsync() > 0)
         {
             cart.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return true;
-
         }
 
         return false;
