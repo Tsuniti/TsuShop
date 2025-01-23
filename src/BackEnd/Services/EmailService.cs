@@ -14,7 +14,7 @@ public class EmailService : IEmailService
         _emailOptions = emailOptions;
     }
 
-    public async Task<bool> SendEmailFromUserToUs(string sendersEmail, string sendersName, string subject, string text)
+    public async Task<bool> SendEmailFromUserToUsAsync(string sendersEmail, string sendersName, string subject, string text)
     {
         if (string.IsNullOrEmpty(sendersEmail) ||
             string.IsNullOrEmpty(sendersName) ||
