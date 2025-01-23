@@ -108,34 +108,34 @@ public class CartService : ICartService
     }
     
 
-    public async Task<bool> RemoveItemFromCartAsync(Guid cartItemId, Guid userId)
-    {
-        var cart = await _context.Carts
-            .Where(cart => cart.User.Id == userId)
-            .Include(cart => cart.CartItems)
-            .FirstOrDefaultAsync();
-        
-        if (cart is null)
-            return false;
-
-        var cartItem = cart.CartItems.FirstOrDefault(cartItem => cartItem.Id == cartItemId);
-
-        if (cartItem == null)
-            return false;
-
-
-        _context.CartItems.Remove(cartItem);
-
-
-        if (await _context.SaveChangesAsync() > 0)
-        {
-            cart.UpdatedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        return false;
-    }
+    // public async Task<bool> RemoveItemFromCartAsync(Guid cartItemId, Guid userId)
+    // {
+    //     var cart = await _context.Carts
+    //         .Where(cart => cart.User.Id == userId)
+    //         .Include(cart => cart.CartItems)
+    //         .FirstOrDefaultAsync();
+    //     
+    //     if (cart is null)
+    //         return false;
+    //
+    //     var cartItem = cart.CartItems.FirstOrDefault(cartItem => cartItem.Id == cartItemId);
+    //
+    //     if (cartItem == null)
+    //         return false;
+    //
+    //
+    //     _context.CartItems.Remove(cartItem);
+    //
+    //
+    //     if (await _context.SaveChangesAsync() > 0)
+    //     {
+    //         cart.UpdatedAt = DateTime.UtcNow;
+    //         await _context.SaveChangesAsync();
+    //         return true;
+    //     }
+    //
+    //     return false;
+    // }
 
     public async Task<bool> BuyAsync(Guid userId)
     {

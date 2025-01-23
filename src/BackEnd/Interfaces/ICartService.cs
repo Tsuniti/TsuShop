@@ -8,7 +8,7 @@ public interface ICartService
 
     Task<bool> ChangeQuantityAsync(Guid productId, int quantity, Guid userId);
     Task<bool> AddSomeInCartAsync(Guid productId, int quantity, Guid userId);
-    Task<bool> RemoveItemFromCartAsync(Guid cartItemId, Guid userId);
+    //Task<bool> RemoveItemFromCartAsync(Guid cartItemId, Guid userId);
 
     Task<bool> BuyAsync(Guid userId);
 }
