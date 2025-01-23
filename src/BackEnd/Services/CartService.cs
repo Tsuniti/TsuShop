@@ -46,7 +46,7 @@ public class CartService : ICartService
         
         if (product.Quantity < quantity)
         {
-            quantity = product.Quantity;
+            return false;
         }
 
         cartItem.Quantity = quantity;
@@ -68,7 +68,7 @@ public class CartService : ICartService
             .FirstOrDefaultAsync();
 
         if (cart is null)
-            return false; // is not cart owner
+            return false;
 
 
         if (cart.CartItems.Any(cartItem => cartItem.ProductId == productId))

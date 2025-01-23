@@ -74,7 +74,7 @@ public class CartController : ControllerBase
     /// <param name="model">Model with text of comment and todo id</param>
     /// <response code="200">Success</response>
     /// <response code="400">Invalid request data</response>
-    /// <returns>Created comment</returns>
+    /// <returns>nothing</returns>
     [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Dictionary<string, string[]>), StatusCodes.Status400BadRequest)]
     [HttpPost]
@@ -82,8 +82,10 @@ public class CartController : ControllerBase
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+
+        if (!await _cartService.AddSomeInCartAsync(model.ProductId, model.Quantity, UserId))
+            return BadRequest("Probably product quantity is less than you trying to add");
             
-        await _cartService.AddSomeInCartAsync(model.ProductId, model.Quantity, UserId);
         return Ok();
     }
     
