@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TsuShopWebApi.Interfaces;
 using TsuShopWebApi.Models.EmailModels;
 
 namespace TsuShopWebApi.Controllers;
 
+
+[Route("email")]
+[Authorize]
 public class EmailController : ControllerBase
 {
     private readonly IEmailService _emailService;
