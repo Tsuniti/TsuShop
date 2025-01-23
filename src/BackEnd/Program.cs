@@ -10,7 +10,7 @@ using TsuShopWebApi.Options;
 using TsuShopWebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-{
+
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowAll", policy =>
@@ -58,6 +58,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters =
             serviceProvider.GetRequiredService<IJwtGenerator>().TokenValidationParameters;
     });
+
     
 builder.Services.AddControllers();
 
@@ -98,7 +99,7 @@ builder.Services.AddSwaggerGen(config =>
         }
     });
 });
-}
+
 
 
 
@@ -115,6 +116,7 @@ var app = builder.Build();
             config.SwaggerEndpoint("swagger/v1/swagger.json", "TsuShop");
         }
     );
+    
     app.MapControllers();
 
 }

@@ -24,6 +24,9 @@ public class EmailController : ControllerBase
     /// <response code="200">Success</response>
     /// <response code="400">Invalid request data</response>
     /// <returns>string</returns>
+    [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost]
     public async Task<IActionResult> SendEmailFromUserToUs([FromBody] SendEmailFromUserToUsRequestModel model)
     {
         if (!ModelState.IsValid)

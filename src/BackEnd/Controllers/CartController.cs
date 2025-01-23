@@ -46,9 +46,9 @@ public class CartController : ControllerBase
 
 
     /// <summary>
-    /// Update todo
+    /// Change quantity of existing item
     /// </summary>
-    /// <param name="model">Model with todo id, new title, new status(isCompleted)</param>
+    /// <param name="model">Model with productId, quantity</param>
     /// <response code="200">Success</response>
     /// <response code="400">Quantity not changed</response>
     /// <returns>string</returns>
@@ -71,7 +71,7 @@ public class CartController : ControllerBase
     /// <summary>
     /// Add in cart one or more of the same item
     /// </summary>
-    /// <param name="model">Model with text of comment and todo id</param>
+    /// <param name="model">Model with productId, quantity</param>
     /// <response code="200">Success</response>
     /// <response code="400">Invalid request data</response>
     /// <returns>string</returns>
