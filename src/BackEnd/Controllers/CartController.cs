@@ -43,17 +43,15 @@ public class CartController : ControllerBase
 
         return Ok(cartItems);
     }
-    
-    
-    
+
+
     /// <summary>
     /// Update todo
     /// </summary>
     /// <param name="model">Model with todo id, new title, new status(isCompleted)</param>
     /// <response code="200">Success</response>
-    /// <response code="400">Invalid request data</response>
-    /// <response code="404">Todo not found or access denied</response>
-    /// <returns>Updated todo</returns>
+    /// <response code="400">Quantity not changed</response>
+    /// <returns>string</returns>
     [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Dictionary<string, string[]>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(IActionResult), StatusCodes.Status404NotFound)]
@@ -62,11 +60,13 @@ public class CartController : ControllerBase
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-            
-        await _cartService.ChangeQuantityAsync(model.ProductId, model.Quantity, UserId);
-        return Ok();
+
+        if (await _cartService.ChangeQuantityAsync(model.ProductId, model.Quantity, UserId))
+            return BadRequest("Probably product quantity is less than you trying to add");
+
+        return Ok("Quantity changed");
     }
-    
+
 
     /// <summary>
     /// Add in cart one or more of the same item
@@ -74,7 +74,7 @@ public class CartController : ControllerBase
     /// <param name="model">Model with text of comment and todo id</param>
     /// <response code="200">Success</response>
     /// <response code="400">Invalid request data</response>
-    /// <returns>nothing</returns>
+    /// <returns>string</returns>
     [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Dictionary<string, string[]>), StatusCodes.Status400BadRequest)]
     [HttpPost]
@@ -83,10 +83,9 @@ public class CartController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        if (!await _cartService.AddSomeInCartAsync(model.ProductId, model.Quantity, UserId))
-            return BadRequest("Probably product quantity is less than you trying to add");
-            
-        return Ok();
+        await _cartService.AddSomeInCartAsync(model.ProductId, model.Quantity, UserId);
+
+        return Ok("Item added or quantity increased");
     }
     
     
