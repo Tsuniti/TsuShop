@@ -23,7 +23,7 @@ public class ReviewService : IReviewService
             .ToListAsync();
     }
 
-    public async Task<Review?> CreateAsync(Guid productId, Guid userId, string? text, int rating)
+    public async Task<Review?> CreateAsync(Guid productId, string? text, int rating, Guid userId)
     {
         if (!await _context.Users.AnyAsync(user => user.Id == userId))
         {
@@ -61,14 +61,16 @@ public class ReviewService : IReviewService
         if (await _context.SaveChangesAsync() > 0)
         {
             await _productService.ReCountRatingAsync(product);
+            return review;
         }
 
         return null; // if not added
     }
 
-    public async Task<Review?> UpdateAsync(Guid reviewId, Guid userId, string? text, int rating)
+    public async Task<Review?> UpdateAsync(Guid reviewId, string? text, int rating, Guid userId)
     {
-        if (!await _context.Users.AnyAsync(user => user.Id == userId))
+        var user = await _context.Users.FirstOrDefaultAsync(user => user.Id == userId);
+        if (user is null)
         {
             return null; // user not exists
         }
@@ -80,32 +82,56 @@ public class ReviewService : IReviewService
             return null;
         }
 
+        if (review.UserId != userId && !user.IsAdmin)
+        {
+            return null;
+        }
+
         review.Text = text;
         review.Rating = rating;
         review.UpdatedAt = DateTime.UtcNow;
 
+        var product = await _context.Products.FirstOrDefaultAsync(product => product.Id == review.ProductId);
+        
         if (await _context.SaveChangesAsync() > 0)
+        {
+            await _productService.ReCountRatingAsync(product);
             return review;
+        }
 
         return null;
-
     }
 
     public async Task<bool> RemoveAsync(Guid reviewId, Guid userId)
     {
-        if (!await _context.Users.AnyAsync(user => user.Id == userId))
+        var user = await _context.Users.FirstOrDefaultAsync(user => user.Id == userId);
+        if (user is null)
         {
             return false; // user not exists
         }
+
         var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == reviewId);
 
         if (review is null)
         {
             return false;
         }
+        
+        if (review.UserId != userId && !user.IsAdmin)
+        {
+            return false;
+        }
 
         _context.Reviews.Remove(review);
+
+        var product = await _context.Products.FirstOrDefaultAsync(product => product.Id == review.ProductId);
         
-        return await _context.SaveChangesAsync() > 0;
+        if (await _context.SaveChangesAsync() > 0)
+        {
+            await _productService.ReCountRatingAsync(product);
+            return true;
+        }
+
+        return false;
     }
 }

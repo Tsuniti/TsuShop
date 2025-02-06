@@ -22,6 +22,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         _databaseOptions = databaseOptions;
         _adminOptions = adminOptions;
+        Database.EnsureDeleted();
         Database.EnsureCreated();
     }
 
@@ -84,6 +85,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                     Username = _adminOptions.Username,
                     PasswordHash =
                         BitConverter.ToString(SHA256.HashData(Encoding.UTF8.GetBytes(_adminOptions.Password))),
+                    IsAdmin = true,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     CartId = Guid.Parse(_adminOptions.CartId)

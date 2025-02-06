@@ -71,8 +71,12 @@ public class ProductService : IProductService
 
     public async Task<Product?> CreateAsync(string name, string description, string category, double price, int quantity, Guid userId)
     {
+        
+        Console.WriteLine("Creating");
+
         if (!await _userService.IsUserAdminAsync(userId)) 
             return null;
+
 
         var newProduct = new Product
         {
@@ -88,7 +92,7 @@ public class ProductService : IProductService
             UpdatedAt = DateTime.UtcNow
             
         };
-
+        Console.WriteLine(newProduct);
         await _context.Products.AddAsync(newProduct);
         
         return await _context.SaveChangesAsync() > 0 ? newProduct : null;
