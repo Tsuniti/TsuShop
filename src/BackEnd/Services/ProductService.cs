@@ -17,10 +17,12 @@ public class ProductService : IProductService
     }
     
     
-    public async Task<ICollection<Product>> GetSomeAsync(int page = 1, int quantity = 21, string? sortBy = null, bool isAscending = true, string? category = null, string? name = null)
+    public async Task<ProductsPage> GetSomeAsync(int page = 1, int quantity = 21, int minPrice = 0, int maxPrice = Int32.MaxValue, string? sortBy = null, bool isAscending = true, string? category = null, string? name = null)
     {
 
-        var productsQuery = _context.Products.AsNoTracking().AsQueryable();
+        var productsQuery = _context.Products.AsNoTracking().AsQueryable().Where(product => product.Price <= maxPrice && product.Price >= minPrice);
+
+        var pages = Math.Ceiling((double)productsQuery.Count() / quantity);
 
         if (!string.IsNullOrEmpty(category))
         {
@@ -48,8 +50,17 @@ public class ProductService : IProductService
         }
         else
         {
-            // По умолчанию сортировка по имени
-            productsQuery = productsQuery.OrderBy(product => product.Name);
+            if (isAscending is false)
+            {
+
+                // По умолчанию сортировка по имени
+                productsQuery = productsQuery.OrderBy(product => product.Name);
+            }
+            else
+            {
+                productsQuery = productsQuery.OrderByDescending(product => product.Name);
+
+            }
         }
 
         // Ограничение по количеству
@@ -58,8 +69,25 @@ public class ProductService : IProductService
                                                     .Take(quantity)
                                                     .ToListAsync();
 
-        return products;
+        var productsPage = new ProductsPage
+        {
+            Products = products,
+            Pages = (int)pages
+        };
+
+        return productsPage;
         
+    }
+
+    public async Task<ICollection<string>> GetCategories()
+    {
+        // Извлекаем уникальные категории из продуктов
+        var categories = await _context.Products
+            .Select(p => p.Category)
+            .Distinct() // Получаем уникальные категории
+            .ToListAsync();
+
+        return categories;
     }
 
     public async Task<Product?> GetByIdAsync(Guid productId)
@@ -72,7 +100,6 @@ public class ProductService : IProductService
     public async Task<Product?> CreateAsync(string name, string description, string category, double price, int quantity, Guid userId)
     {
         
-        Console.WriteLine("Creating");
 
         if (!await _userService.IsUserAdminAsync(userId)) 
             return null;
@@ -92,7 +119,6 @@ public class ProductService : IProductService
             UpdatedAt = DateTime.UtcNow
             
         };
-        Console.WriteLine(newProduct);
         await _context.Products.AddAsync(newProduct);
         
         return await _context.SaveChangesAsync() > 0 ? newProduct : null;
@@ -159,6 +185,8 @@ public class ProductService : IProductService
         
         return await _context.SaveChangesAsync() > 0;
     }
+
+    public async Task<double> GetMaxPrice() => await _context.Products.MaxAsync(p => p.Price);
     
 
     public async Task<bool> ReCountRatingAsync(Product product)

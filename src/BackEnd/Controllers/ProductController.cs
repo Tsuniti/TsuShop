@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using TsuShopWebApi.Interfaces;
 using TsuShopWebApi.Models.ProductModels;
@@ -25,6 +26,8 @@ public class ProductController : ControllerBase
     /// </summary>
     /// <param name="page">int</param>
     /// <param name="quantity">int</param>
+    /// <param name="minPrice">int</param>
+    /// <param name="maxPrice">int</param>
     /// <param name="sortBy">string</param>
     /// <param name="isAscending">bool</param>
     /// <param name="category">string</param>
@@ -33,13 +36,22 @@ public class ProductController : ControllerBase
     [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet]
-    public async Task<IActionResult> GetProducts([FromQuery] int page, int quantity, string sortBy, bool isAscending,
-        string category, string name)
+    public async Task<IActionResult> GetProducts(
+        [FromQuery] int page = 1,
+        [FromQuery] int quantity = 21,
+        [FromQuery] int minPrice = 0,
+        [FromQuery] int maxPrice = Int32.MaxValue,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool isAscending = true,
+        [FromQuery] string? category = null,
+        [FromQuery] string? name = null)
     {
         var products =
             await _productService.GetSomeAsync(
                 page,
                 quantity,
+                minPrice,
+                maxPrice,
                 sortBy,
                 isAscending,
                 category,
@@ -48,6 +60,26 @@ public class ProductController : ControllerBase
         return Ok(products);
     }
 
+    /// <summary>
+    /// Get max price
+    /// </summary>
+    /// <returns>double</returns>
+    [HttpGet("max-price")]
+    public async Task<IActionResult> GetMaxPrice()
+    {
+        return Ok(await _productService.GetMaxPrice());
+    }
+
+    
+    /// <summary>
+    /// Get all product categories
+    /// </summary>
+    /// <returns>ICollection of strings</returns>
+    [HttpGet("categories")]
+    public async Task<IActionResult> GetCategories()
+    {
+        return Ok(await _productService.GetCategories());
+    }
 
     /// <summary>
     /// Get one product by id
