@@ -21,8 +21,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public ApplicationDbContext(DatabaseOptions databaseOptions, AdminOptions adminOptions)
     {
         _databaseOptions = databaseOptions;
-        _adminOptions = adminOptions;
-        Database.EnsureDeleted();
+        _adminOptions = adminOptions; 
         Database.EnsureCreated();
     }
 
