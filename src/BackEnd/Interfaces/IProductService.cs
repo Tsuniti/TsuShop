@@ -11,9 +11,9 @@ public interface IProductService
 
     Task<Product?> GetByIdAsync(Guid productId);
 
-    Task<Product?> CreateAsync(string name, string description, string category, double price, int quantity, Guid userId);
+    Task<Product?> CreateAsync(string name, IFormFile file, string description, string category, double price, int quantity, Guid userId);
 
-    Task<Product?> UpdateAsync(Guid productId, string name, string description, string category, double price, int quantity, Guid userId);
+    Task<Product?> UpdateAsync(Guid productId, string name, IFormFile? file, string description, string category, double price, int quantity, Guid userId);
 
     Task<bool> DeleteAsync(Guid productId, Guid userId);
     Task<bool> RemoveSomeFromStockAsync(Guid productId, int quantity);

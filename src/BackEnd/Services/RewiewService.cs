@@ -20,6 +20,7 @@ public class ReviewService : IReviewService
         return await _context.Reviews
             .Where(review => review.ProductId == productId)
             .Include(review => review.User)
+            .OrderByDescending(review => review.UpdatedAt)
             .ToListAsync();
     }
 
@@ -30,7 +31,9 @@ public class ReviewService : IReviewService
             return null; // user not exists
         }
 
-        var product = await _productService.GetByIdAsync(productId);
+        var product = await _context.Products
+            .Include(product => product.Reviews)
+            .FirstOrDefaultAsync(product => product.Id == productId);
 
         if (product is null)
         {
@@ -69,6 +72,7 @@ public class ReviewService : IReviewService
 
     public async Task<Review?> UpdateAsync(Guid reviewId, string? text, int rating, Guid userId)
     {
+
         var user = await _context.Users.FirstOrDefaultAsync(user => user.Id == userId);
         if (user is null)
         {
@@ -91,11 +95,17 @@ public class ReviewService : IReviewService
         review.Rating = rating;
         review.UpdatedAt = DateTime.UtcNow;
 
-        var product = await _context.Products.FirstOrDefaultAsync(product => product.Id == review.ProductId);
+        var product =
+            await _context.Products
+                .Include(product => product.Reviews)
+                .FirstOrDefaultAsync(product => product.Id == review.ProductId);
+
+        Console.WriteLine(product);
         
         if (await _context.SaveChangesAsync() > 0)
         {
-            await _productService.ReCountRatingAsync(product);
+            Console.WriteLine(await _productService.ReCountRatingAsync(product));
+            
             return review;
         }
 
@@ -124,7 +134,9 @@ public class ReviewService : IReviewService
 
         _context.Reviews.Remove(review);
 
-        var product = await _context.Products.FirstOrDefaultAsync(product => product.Id == review.ProductId);
+        var product = await _context.Products
+            .Include(product => product.Reviews)
+            .FirstOrDefaultAsync(product => product.Id == review.ProductId);
         
         if (await _context.SaveChangesAsync() > 0)
         {

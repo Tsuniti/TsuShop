@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Mail;
+using Microsoft.Extensions.Options;
 using TsuShopWebApi.Interfaces;
 using TsuShopWebApi.Options;
 
@@ -9,9 +10,9 @@ public class EmailService : IEmailService
 {
     private readonly EmailOptions _emailOptions;
 
-    public EmailService(EmailOptions emailOptions)
+    public EmailService(IOptions<EmailOptions> emailOptions)
     {
-        _emailOptions = emailOptions;
+        _emailOptions = emailOptions.Value;
     }
 
     public async Task<bool> SendEmailFromUserToUsAsync(string sendersEmail, string sendersName, string subject, string text)

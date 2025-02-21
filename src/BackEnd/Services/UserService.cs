@@ -17,15 +17,6 @@ public class UserService : IUserService
 
     public async Task<Guid> CreateUserAsync(string username, string password)
     {
-        var newUser = new User
-        {
-            Id = Guid.NewGuid(),
-            Username = username,
-            PasswordHash = Hash(password),
-            IsAdmin = false,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
         
         var newCart = new Cart
         {
@@ -33,6 +24,18 @@ public class UserService : IUserService
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
+        
+        var newUser = new User
+        {
+            Id = Guid.NewGuid(),
+            Username = username,
+            PasswordHash = Hash(password),
+            IsAdmin = false,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            CartId = newCart.Id
+        };
+        
 
         await _context.Carts.AddAsync(newCart);
         await _context.Users.AddAsync(newUser);

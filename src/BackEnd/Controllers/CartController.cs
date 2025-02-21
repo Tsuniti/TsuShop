@@ -61,7 +61,7 @@ public class CartController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        if (await _cartService.ChangeQuantityAsync(model.ProductId, model.Quantity, UserId))
+        if (!await _cartService.ChangeQuantityAsync(model.ProductId, model.Quantity, UserId))
             return BadRequest("Probably product quantity is less than you trying to add");
 
         return Ok("Quantity changed");

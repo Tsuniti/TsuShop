@@ -1,6 +1,8 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using TsuShopWebApi.Interfaces;
 using TsuShopWebApi.Options;
@@ -10,14 +12,16 @@ namespace TsuShopWebApi.Services;
 public class JwtGenerator : IJwtGenerator
 {
     private readonly JwtOptions _jwtOptions;
+    private readonly IUserService _userService;
 
     public TokenValidationParameters TokenValidationParameters { get; }
 
-    public JwtGenerator(JwtOptions jwtOptions)
+    public JwtGenerator(IOptions<JwtOptions>  jwtOptions, IUserService userService)
     {
 
-        _jwtOptions = jwtOptions;
-        
+        _jwtOptions = jwtOptions.Value;
+        _userService = userService;
+
         TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -31,11 +35,13 @@ public class JwtGenerator : IJwtGenerator
         };
     }
 
-    public string GenerateToken(Guid userId)
+    public async Task<string> GenerateTokenAsync(Guid userId)
     {
+        var isUserAdmin = await _userService.IsUserAdminAsync(userId);
+        
         var claims = new List<Claim>
         {
-            new Claim("Hello", "World"),
+            new Claim("IsAdmin", isUserAdmin.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(ClaimTypes.NameIdentifier, userId.ToString())
         };

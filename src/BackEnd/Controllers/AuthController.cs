@@ -73,7 +73,7 @@ public class AuthController : ControllerBase
             return NotFound(new { error = "User not found" });
 
         // jwt токен
-        var token = _jwtGenerator.GenerateToken((Guid)userId);
+        var token = await _jwtGenerator.GenerateTokenAsync((Guid)userId);
 
         return Ok(new { token });
     }

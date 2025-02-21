@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using TsuShopWebApi.Entities;
 using TsuShopWebApi.Interfaces;
 using TsuShopWebApi.Options;
@@ -18,10 +19,10 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<User> Users { get; set; }
     
 
-    public ApplicationDbContext(DatabaseOptions databaseOptions, AdminOptions adminOptions)
+    public ApplicationDbContext(IOptions<DatabaseOptions> databaseOptions, IOptions<AdminOptions> adminOptions)
     {
-        _databaseOptions = databaseOptions;
-        _adminOptions = adminOptions; 
+        _databaseOptions = databaseOptions.Value;
+        _adminOptions = adminOptions.Value;
         Database.EnsureCreated();
     }
 

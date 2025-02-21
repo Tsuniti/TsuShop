@@ -6,5 +6,5 @@ public interface IJwtGenerator
 {
     
     TokenValidationParameters TokenValidationParameters { get; }
-    string GenerateToken(Guid userId);
+    Task<string> GenerateTokenAsync(Guid userId);
 }

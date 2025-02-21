@@ -62,6 +62,7 @@ public class ReviewController : ControllerBase
     public async Task<IActionResult> UpdateReview([FromBody] UpdateReviewRequestModel model)
     {
         var review = await _reviewService.UpdateAsync(model.ReviewId, model.Text, model.Rating, UserId);
+        
         if (review is null)
             return BadRequest("Review is not updated");
 

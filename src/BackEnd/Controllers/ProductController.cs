@@ -109,7 +109,7 @@ public class ProductController : ControllerBase
     [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("create")]
-    public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequestModel model)
+    public async Task<IActionResult> CreateProduct([FromForm] CreateProductRequestModel model)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -117,6 +117,7 @@ public class ProductController : ControllerBase
         var product =
             await _productService.CreateAsync(
                 model.Name,
+                model.Image,
                 model.Description,
                 model.Category,
                 model.Price,
@@ -138,7 +139,7 @@ public class ProductController : ControllerBase
     [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPut]
-    public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductRequestModel model)
+    public async Task<IActionResult> UpdateProduct([FromForm] UpdateProductRequestModel model)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -147,6 +148,7 @@ public class ProductController : ControllerBase
             await _productService.UpdateAsync(
                 model.ProductId,
                 model.Name,
+                model.Image,
                 model.Description,
                 model.Category,
                 model.Price,
