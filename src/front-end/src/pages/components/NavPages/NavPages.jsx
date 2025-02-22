@@ -1,5 +1,3 @@
-import {useState} from "react";
-
 const NavPages = ({maxPages, currentPage, setCurrentPage}) => {
         const pages = Array.from({ length: maxPages }, (_, index) => index + 1);
 

@@ -14,7 +14,7 @@ function ProductPage() {
     const [isUserAdmin, setIsUserAdmin] = useState(false);
     const [reviewRating, setReviewRating] = useState(0);
     const [reviewText, setReviewText] = useState("");
-    const [selectedQuantity, setselectedQuantity] = useState(1);
+    const [selectedQuantity, setSelectedQuantity] = useState(1);
 
 
     const [product, setProduct] = useState();
@@ -58,7 +58,7 @@ function ProductPage() {
                 setIsUserAdmin(false);
             }
         }
-    },);
+    },[]);
 
 
     useEffect(() => {
@@ -116,22 +116,22 @@ function ProductPage() {
 
 
         if (e.target.value > product.quantity || e.target.value < 1 || e.target.value > 99) {
-            setselectedQuantity(selectedQuantity);
+            setSelectedQuantity(selectedQuantity);
             return;
         }
-        setselectedQuantity(e.target.value);
+        setSelectedQuantity(e.target.value);
     }
 
     const handlePlusClick = () => {
-        if (setselectedQuantity() + 1 > product.quantity || selectedQuantity + 1 > 99) {
+        if (setSelectedQuantity() + 1 > product.quantity || selectedQuantity + 1 > 99) {
             return;
         }
-        setselectedQuantity(selectedQuantity + 1);
+        setSelectedQuantity(selectedQuantity + 1);
     }
 
     const handleMinusClick = () => {
         if (selectedQuantity > 1) {
-            setselectedQuantity(selectedQuantity - 1);
+            setSelectedQuantity(selectedQuantity - 1);
         }
     }
 
@@ -216,9 +216,10 @@ function ProductPage() {
                 <div className="col-lg-5 mb-30">
                     <div id="product-carousel" className="carousel slide" data-ride="carousel">
                         <div className="carousel-inner bg-light">
-                            <div className="carousel-item active">
+                            <div className="carousel-item active" style={{aspectRatio: "1 / 1"}}>
                                 <img className="w-100 h-100"
-                                     src={product.imageUrl || "/../src/assets/img/no-image.jpeg"} alt="Image"
+                                     style={{objectFit: "contain"}}
+                                     src={product.imageUrl || "/assets/img/no-image.jpeg"} alt="Image"
                                 />
                             </div>
                         </div>

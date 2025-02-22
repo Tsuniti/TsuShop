@@ -70,7 +70,7 @@ const CartProductRow = ({item}) => {
     return (
 
         <tr>
-            <td className="align-middle"><img src="/../../src/assets/img/product-1.jpg" alt=""
+            <td className="align-middle"><img src={item.product.imageUrl} alt=""
                                               style={{width: "50px"}}/> {item.product.name}
             </td>
             <td className="align-middle">${item.product.price}</td>

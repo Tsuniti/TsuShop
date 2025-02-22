@@ -9,11 +9,10 @@ function OneProductTile({product, size}) {
         <div className={columnClass}>
             <div className="product-item bg-light mb-4">
                 <a href={`/products/${product.id}`}>
-                    <div className="product-img position-relative overflow-hidden">
-                        <img className= "img-fluid w-100" src={product.imageUrl || "/../src/assets/img/no-image.jpeg"} alt="Product"/>
+                    <div className="product-img position-relative overflow-hidden" style={{aspectRatio: "1 / 1"}}>
+                        <img className= "img-fluid w-100" src={product.imageUrl || "/../src/assets/img/no-image.jpeg"} alt="Product"
+                             style={{objectFit: "contain"}} />
                         <div className="product-action" style={{opacity: "0.5"}}>
-
-
                         </div>
                     </div>
                 </a>

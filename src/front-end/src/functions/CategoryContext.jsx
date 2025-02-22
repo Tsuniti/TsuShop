@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import Path from "../endpoints.jsx";
 
 const CategoryContext = createContext([]);
 
@@ -9,10 +10,10 @@ export function CategoryProvider({ children }) {
         // Фетчим категории один раз при монтировании компонента
         const fetchCategories = async () => {
             try {
-                const response = await fetch(`http://localhost:5001/product/categories`);
+                const response = await fetch(Path['productCategories']);
                 const data = await response.json();
                 setCategories(data);
-                //console.log(categories);
+                console.log(categories);
             } catch (error) {
                 console.error("Error fetching categories:", error);
             }

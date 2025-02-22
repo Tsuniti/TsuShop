@@ -166,7 +166,7 @@ function ShopPage() {
                                         <div className="btn-group">
                                             <button className="btn btn-sm btn-light ml-1"
                                                     onClick={() => setIsAscending(!isAscending)}>
-                                                <img src="/../../src/assets/img/sorting.png"
+                                                <img src="/assets/img/sorting.png"
                                                      alt="sort"
                                                      style={{transform: isAscending ? "rotate(0deg)" : "rotate(180deg)"}}
                                                 />

@@ -17,7 +17,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<User> Users { get; set; }
-    
+
 
     public ApplicationDbContext(IOptions<DatabaseOptions> databaseOptions, IOptions<AdminOptions> adminOptions)
     {
@@ -28,7 +28,12 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(_databaseOptions.ConnectionString);
+        optionsBuilder.UseSqlServer(_databaseOptions.ConnectionString, sqlOptions =>
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null)
+        );
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,7 +47,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             .HasMany(user => user.Reviews)
             .WithOne(review => review.User)
             .HasForeignKey(review => review.UserId);
-        
+
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Username)
             .IsUnique()
@@ -52,22 +57,22 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             .HasOne(review => review.Product)
             .WithMany(product => product.Reviews)
             .HasForeignKey(review => review.ProductId);
-        
+
         modelBuilder.Entity<Cart>()
             .HasMany(cart => cart.CartItems)
             .WithOne(cartItem => cartItem.Cart)
             .HasForeignKey(cartItem => cartItem.CartId);
-        
+
         modelBuilder.Entity<Product>()
             .HasMany(product => product.CartItems)
             .WithOne(cartItem => cartItem.Product)
-            .HasForeignKey(cartItem=> cartItem.ProductId);
-        
+            .HasForeignKey(cartItem => cartItem.ProductId);
+
         modelBuilder.Entity<CartItem>()
             .HasIndex(cartItem => new { cartItem.CartId, cartItem.ProductId })
             .IsUnique();
-        
-        
+
+
         modelBuilder.Entity<Cart>()
             .HasData(
                 new Cart
@@ -76,7 +81,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 });
-        
+
         modelBuilder.Entity<User>()
             .HasData(
                 new User
@@ -89,7 +94,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     CartId = Guid.Parse(_adminOptions.CartId)
-                    
                 });
     }
 }

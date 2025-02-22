@@ -84,7 +84,7 @@ if(token) {
                         <div className="table-title">
                             <div className="row">
                                 <div className="col-sm-4">
-                                    <h2 style={{color: "white"}}>Order <b>Details</b></h2>
+                                    <h2 style={{color: "white"}}><b>Admin panel</b></h2>
                                 </div>
                                 <div className="col-sm-8">
                                     <button type="button"

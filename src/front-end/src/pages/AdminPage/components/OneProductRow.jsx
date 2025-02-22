@@ -109,7 +109,7 @@ const ProductRow = ({product, isNew}) => {
                     <input type="file" value="" className="input-group" style={{width: "100%"}} accept="image/*"
                            onChange={handleFileChange}/>
                 ) : (
-                    <img src={product.imageUrl || "#"} className="photo" alt="Photo"/>
+                    <img style={{maxWidth: "100px", objectFit: "contain"}} src={product.imageUrl || "#"} className="photo" alt="Photo"/>
                 )}
             </td>
             <td>
@@ -125,7 +125,10 @@ const ProductRow = ({product, isNew}) => {
                     <input type="text" className="input-group-text" style={{width: "100%"}} name="description"
                            value={editedProduct.description} onChange={handleChange}/>
                 ) : (
-                    product.description
+
+                    <div style={{ maxHeight: "120px", overflowY: "auto" }}>
+                        {product.description}
+                    </div>
                 )}
             </td>
             <td>
